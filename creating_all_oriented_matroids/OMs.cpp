@@ -1,6 +1,7 @@
 #include <cassert>
 #include <stdio.h>
 #include <stdlib.h>
+#include <utility>
 
 #include "OMs.h"
 
@@ -200,7 +201,7 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
   if (R == 3 && N <= 9) // quick code for common used parameters
   {
     if (N == 9) {
-      if (a[0] == 0)
+      if (a[0] == 0) {
         if (a[1] == 1)
           return a[2] - 2;
         else if (a[1] == 2)
@@ -213,7 +214,9 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
           return a[2] + 16;
         else
           return a[1] + a[2] + 12;
-      if (a[0] == 1)
+      }
+
+      if (a[0] == 1) {
         if (a[1] == 2)
           return a[2] + 25;
         else if (a[1] == 3)
@@ -224,7 +227,9 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
           return a[2] + 37;
         else
           return a[1] + a[2] + 33;
-      if (a[0] == 2)
+      }
+
+      if (a[0] == 2) {
         if (a[1] == 3)
           return a[2] + 45;
         else if (a[1] == 4)
@@ -233,22 +238,28 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
           return a[2] + 52;
         else
           return a[1] + a[2] + 48;
-      if (a[0] == 3)
+      }
+
+      if (a[0] == 3) {
         if (a[1] == 4)
           return a[2] + 59;
         else if (a[1] == 5)
           return a[2] + 62;
         else
           return a[1] + a[2] + 58;
-      if (a[0] == 4)
+      }
+
+      if (a[0] == 4) {
         if (a[1] == 5)
           return a[2] + 68;
         else
           return a[1] + a[2] + 64;
+      }
+
       return a[0] + a[1] + a[2] + 62;
     }
     if (N == 8) {
-      if (a[0] == 0)
+      if (a[0] == 0) {
         if (a[1] == 1)
           return a[2] - 2;
         else if (a[1] == 2)
@@ -259,7 +270,9 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
           return a[2] + 10;
         else
           return a[1] + a[2] + 7;
-      if (a[0] == 1)
+      }
+
+      if (a[0] == 1) {
         if (a[1] == 2)
           return a[2] + 18;
         else if (a[1] == 3)
@@ -268,22 +281,28 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
           return a[2] + 25;
         else
           return a[1] + a[2] + 22;
-      if (a[0] == 2)
+      }
+
+      if (a[0] == 2) {
         if (a[1] == 3)
           return a[2] + 32;
         else if (a[1] == 4)
           return a[2] + 35;
         else
           return a[1] + a[2] + 32;
-      if (a[0] == 3)
+      }
+
+      if (a[0] == 3) {
         if (a[1] == 4)
           return a[2] + 41;
         else
           return a[1] + a[2] + 38;
+      }
+
       return a[0] + a[1] + a[2] + 37;
     }
     if (N == 7) {
-      if (a[0] == 0)
+      if (a[0] == 0) {
         if (a[1] == 1)
           return a[2] - 2;
         else if (a[1] == 2)
@@ -292,43 +311,55 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
           return a[2] + 5;
         else
           return a[1] + a[2] + 3;
-      if (a[0] == 1)
+      }
+
+      if (a[0] == 1) {
         if (a[1] == 2)
           return a[2] + 12;
         else if (a[1] == 3)
           return a[2] + 15;
         else
           return a[1] + a[2] + 13;
-      if (a[0] == 2)
+      }
+
+      if (a[0] == 2) {
         if (a[1] == 3)
           return a[2] + 21;
         else
           return a[1] + a[2] + 19;
+      }
+
       return a[0] + a[1] + a[2] + 19;
     }
 
     if (N == 6) {
-      if (a[0] == 0)
+      if (a[0] == 0) {
         if (a[1] == 1)
           return a[2] - 2;
         else if (a[1] == 2)
           return a[2] + 1;
         else
           return a[1] + a[2];
-      if (a[0] == 1)
+      }
+
+      if (a[0] == 1) {
         if (a[1] == 2)
           return a[2] + 7;
         else
           return a[1] + a[2] + 6;
+      }
+
       return a[0] + a[1] + a[2] + 7;
     }
 
     if (N == 5) {
-      if (a[0] == 0)
+      if (a[0] == 0) {
         if (a[1] == 1)
           return a[2] - 2;
         else
           return a[1] + a[2] - 2;
+      }
+
       return a[0] + a[1] + a[2];
     }
     if (N == 4) {
@@ -337,7 +368,7 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
   }
   if (R == 4 && N <= 9) {
     if (N == 9) {
-      if (a[0] == 0)
+      if (a[0] == 0) {
         if (a[1] == 1)
           if (a[2] == 2)
             return a[3] - 3;
@@ -372,7 +403,9 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] + 36;
         else
           return a[1] + a[2] + a[3] + 34;
-      if (a[0] == 1)
+      }
+
+      if (a[0] == 1) {
         if (a[1] == 2)
           if (a[2] == 3)
             return a[3] + 52;
@@ -396,7 +429,9 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] + 71;
         else
           return a[1] + a[2] + a[3] + 69;
-      if (a[0] == 2)
+      }
+
+      if (a[0] == 2) {
         if (a[1] == 3)
           if (a[2] == 4)
             return a[3] + 86;
@@ -411,7 +446,9 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] + 91;
         else
           return a[1] + a[2] + a[3] + 89;
-      if (a[0] == 3)
+      }
+
+      if (a[0] == 3) {
         if (a[1] == 4)
           if (a[2] == 5)
             return a[3] + 105;
@@ -419,11 +456,13 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] + 101;
         else
           return a[1] + a[2] + a[3] + 99;
+      }
+
       return a[0] + a[1] + a[2] + a[3] + 99;
     }
 
     if (N == 8) {
-      if (a[0] == 0)
+      if (a[0] == 0) {
         if (a[1] == 1)
           if (a[2] == 2)
             return a[3] - 3;
@@ -447,7 +486,9 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] + 17;
         else
           return a[1] + a[2] + a[3] + 16;
-      if (a[0] == 1)
+      }
+
+      if (a[0] == 1) {
         if (a[1] == 2)
           if (a[2] == 3)
             return a[3] + 31;
@@ -462,7 +503,9 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] + 37;
         else
           return a[1] + a[2] + a[3] + 36;
-      if (a[0] == 2)
+      }
+
+      if (a[0] == 2) {
         if (a[1] == 3)
           if (a[2] == 4)
             return a[3] + 50;
@@ -470,11 +513,13 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] + 47;
         else
           return a[1] + a[2] + a[3] + 46;
+      }
+
       return a[0] + a[1] + a[2] + a[3] + 47;
     }
 
     if (N == 7) {
-      if (a[0] == 0)
+      if (a[0] == 0) {
         if (a[1] == 1)
           if (a[2] == 2)
             return a[3] - 3;
@@ -489,7 +534,8 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] + 4;
         else
           return a[1] + a[2] + a[3] + 4;
-      if (a[0] == 1)
+      }
+      if (a[0] == 1) {
         if (a[1] == 2)
           if (a[2] == 3)
             return a[3] + 16;
@@ -497,11 +543,13 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] + 14;
         else
           return a[1] + a[2] + a[3] + 14;
+      }
+
       return a[0] + a[1] + a[2] + a[3] + 16;
     }
 
     if (N == 6) {
-      if (a[0] == 0)
+      if (a[0] == 0) {
         if (a[1] == 1)
           if (a[2] == 2)
             return a[3] - 3;
@@ -509,6 +557,8 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
             return a[2] + a[3] - 4;
         else
           return a[1] + a[2] + a[3] - 3;
+      }
+
       return a[0] + a[1] + a[2] + a[3];
     }
     if (N == 5)
@@ -546,6 +596,8 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
       return l;
     m = (u + l) >> 1;
   }
+  assert(false);
+  std::unreachable();
 }
 
 int sort(char a[]) // sorts integers in the array and returns the sign of the
@@ -987,7 +1039,7 @@ char ischirotope(struct OM M) // checks chirotope axioms, see "Oriented
           limit_j = B & 31;
         else
           limit_j = 32;
-        for (j; j < limit_j; j++) {
+        for (; j < limit_j; j++) {
           h = 1u << j;
           pj = M.plus[l] & h;
           mj = M.minus[l] & h;
