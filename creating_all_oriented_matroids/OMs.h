@@ -1,8 +1,18 @@
 #ifndef _OMs_H_
 #define _OMs_H_
-#endif
+
+#include <stdio.h>
 
 // Oriented matroids of rank R on N elements
+
+extern int R; // rank
+extern int N; // the number of elements
+
+extern int B;       // the number of bases
+extern int nr_ints; // the number of integers needed to store the plus (resp. minus) of
+             // a chirotope
+
+extern char **bases; // the list of bases
 
 struct OM {
   unsigned int *plus;
@@ -27,7 +37,7 @@ void removeOM(struct OM *M);
 void showbits(unsigned int *plus);
 
 // prints a chirotope
-void showchirotope(struct OM M);
+void showchirotope(struct OM M, FILE* out = stdout);
 
 // counts the number of bases of a chirotope
 int countbases(struct OM M);
@@ -82,3 +92,6 @@ int isfixed(struct OM M);
 void removegroupaction();
 
 void writeOM(struct OM, FILE *);
+int readOM(struct OM *, FILE *);
+
+#endif

@@ -1,7 +1,8 @@
-#include </home/mi/palic/OMs.h>
 #include <stdio.h>
 #include <stdlib.h> /* because of the constant EXIT_FAILURE*/
 #include <time.h>
+
+#include "OMs.h"
 
 // reads representatives from the Finschi's list and stores it in our format.
 

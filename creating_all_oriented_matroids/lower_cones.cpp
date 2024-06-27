@@ -17,11 +17,9 @@ int nr_ints; // the number of integers needed to store the plus (resp. minus) of
 
 char **bases; // the list of bases
 
-int makechirotopes(struct OM M,
-                   FILE *out) // makes the lower cone of a uniform OM M, works
-                              // only for OMs with at most 64 bases -- it would
-                              // be too slow otherwise, anyway
-{
+// makes the lower cone of a uniform OM M, works only for OMs with at most 64
+// bases -- it would be too slow otherwise, anyway
+int makechirotopes(struct OM M, FILE *out) {
   int c = 0;
   long long int i, j;
   long long int limit1, limit2;
@@ -71,7 +69,7 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
   R = 3; // The code works only for B<=64!
-  N = 7;
+  N = 5;
   makebases();
 
   FILE *in, *out;

@@ -1,23 +1,16 @@
-#include </home/mi/palic/OMs.h>
+#include <cassert>
 #include <stdio.h>
 #include <stdlib.h>
 
-int R; // rank
-int N; // the number of elements
-
-int B;       // the number of bases
-int nr_ints; // the number of integers needed to store the plus (resp. minus) of
-             // a chirotope
-
-char **bases; // the list of bases
+#include "OMs.h"
 
 int w;       // number of permutations
 char **perm; // the list of permutations
 
 int sizeofgroup; // the number of elements of the group that acts on [N] (and
                  // thus on MacP)
-char **action; // the list of elements of the group, seen as a subgroup of the
-               // permutation group
+char **action;   // the list of elements of the group, seen as a subgroup of the
+                 // permutation group
 
 void makebases() // makes the list of all posible bases a chirotope could have,
                  // bases are 012, 013,...
@@ -68,8 +61,8 @@ void removebases() // frees the memory used by bases
 void makeOM(struct OM *M) // allocates memory for an oriented matroid of rank R
                           // on N elements
 {
-  M->plus = malloc(nr_ints * sizeof(int));
-  M->minus = malloc(nr_ints * sizeof(int));
+  M->plus = static_cast<unsigned int *>(malloc(nr_ints * sizeof(int)));
+  M->minus = static_cast<unsigned int *>(malloc(nr_ints * sizeof(int)));
 
   int i;
   for (i = 0; i < nr_ints; i++) {
@@ -98,28 +91,31 @@ void showbits(unsigned int *plus) // prints a list if integers in the binary
       (plus[j] & (1u << i)) ? putchar('1') : putchar('0');
 }
 
-void showchirotope(struct OM M) // prints a chirotope
+void showchirotope(struct OM M, FILE *out) // prints a chirotope
 {
   int i, j;
 
-  for (j = 0; j < nr_ints - 1; j++)
-    for (i = 0; i < 32; i++)
+  for (j = 0; j < nr_ints - 1; j++) {
+    for (i = 0; i < 32; i++) {
       if (M.plus[j] & (1u << i))
-        putchar('+');
+        fputc('+', out);
       else if (M.minus[j] & (1u << i))
-        putchar('-');
+        fputc('-', out);
       else
-        putchar('0');
+        fputc('0', out);
+    }
+  }
 
-  for (i = 0; i < (B & 31); i++)
+  for (i = 0; i < (B & 31); i++) {
     if (M.plus[nr_ints - 1] & (1u << i))
-      putchar('+');
+      fputc('+', out);
     else if (M.minus[nr_ints - 1] & (1u << i))
-      putchar('-');
+      fputc('-', out);
     else
-      putchar('0');
+      fputc('0', out);
+  }
 
-  putchar('\n');
+  fputc('\n', out);
 }
 
 int countbases(struct OM M) // counts the number of bases of a chirotope
@@ -556,16 +552,16 @@ int sort(char a[]) // sorts integers in the array and returns the sign of the
                    // permutation
 {
   char p, q;
-  if (R == 3) // quick code for three integers
-    if (a[1] < a[0])
+  if (R == 3) { // quick code for three integers
+    if (a[1] < a[0]) {
       if (a[2] < a[1]) {
         p = a[2];
         a[2] = a[0];
         a[0] = p;
         return -1;
-      } else if (a[2] == a[1])
+      } else if (a[2] == a[1]) {
         return 0;
-      else if (a[0] < a[2]) {
+      } else if (a[0] < a[2]) {
         p = a[1];
         a[1] = a[0];
         a[0] = p;
@@ -579,29 +575,31 @@ int sort(char a[]) // sorts integers in the array and returns the sign of the
         a[2] = p;
         return 1;
       }
-    else if (a[1] == a[0])
+    } else if (a[1] == a[0]) {
       return 0;
-    else if (a[2] < a[1])
+    } else if (a[2] < a[1]) {
       if (a[0] < a[2]) {
         p = a[1];
         a[1] = a[2];
         a[2] = p;
         return -1;
-      } else if (a[0] == a[2])
+      } else if (a[0] == a[2]) {
         return 0;
-      else {
+      } else {
         p = a[0];
         a[0] = a[2];
         a[2] = a[1];
         a[1] = p;
         return 1;
       }
-    else if (a[2] == a[1])
+    } else if (a[2] == a[1]) {
       return 0;
-    else
+    } else {
       return 1;
+    }
+  }
 
-  if (R == 4) // quick code for four integers
+  if (R == 4) { // quick code for four integers
     if (a[1] < a[0])
       if (a[2] < a[1])
         if (a[3] < a[2]) {
@@ -808,6 +806,7 @@ int sort(char a[]) // sorts integers in the array and returns the sign of the
       a[3] = p;
       return -1;
     }
+  }
 
   int sorted, min, ind_min, i, j, sign; // slow code, but works for all R
 
@@ -1177,6 +1176,56 @@ int isfixed(
     }
   }
   removeOM(&X);
+  return 1;
+}
+
+void writeOM(struct OM om, FILE *f) { showchirotope(om, f); }
+
+int readOM(struct OM *om, FILE *f) {
+  for (int j = 0; j != nr_ints - 1; ++j) {
+    unsigned int plus = 0;
+    unsigned int minus = 0;
+    for (int i = 0; i != 32; ++i) {
+      char c = fgetc(f);
+
+      switch (c) {
+      case '+':
+        plus |= 1 << i;
+        break;
+      case '-':
+        minus |= 1 << i;
+        break;
+      case '0':
+        break;
+      default:
+        assert(false);
+      }
+    }
+    om->minus[j] = minus;
+    om->plus[j] = plus;
+  }
+
+  unsigned int plus = 0;
+  unsigned int minus = 0;
+  for (int i = 0; i != (B & 31); ++i) {
+    char c = fgetc(f);
+
+    switch (c) {
+    case '+':
+      plus |= 1 << i;
+      break;
+    case '-':
+      minus |= 1 << i;
+      break;
+    case '0':
+      break;
+    default:
+      assert(false);
+    }
+  }
+  om->minus[nr_ints - 1] = minus;
+  om->plus[nr_ints - 1] = plus;
+
   return 1;
 }
 

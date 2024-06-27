@@ -1,0 +1,1 @@
+All uniform representatives (reorientations+permutations) of rank 3 on 5 elements:
