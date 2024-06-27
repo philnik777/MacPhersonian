@@ -1,12 +1,13 @@
 #include <cassert>
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <utility>
 
 #include "OMs.h"
 
-int w;       // number of permutations
-char **perm; // the list of permutations
+int w;                                           // number of permutations
+std::unique_ptr<std::unique_ptr<char[]>[]> perm; // the list of permutations
 
 int sizeofgroup; // the number of elements of the group that acts on [N] (and
                  // thus on MacP)
@@ -29,9 +30,9 @@ void makebases() // makes the list of all posible bases a chirotope could have,
   if (B & 31)
     nr_ints++;
 
-  bases = (char **)malloc(B * sizeof(char *));
+  bases = std::make_unique<std::unique_ptr<char[]>[]>(B);
   for (s = 0; s < B; s++)
-    bases[s] = (char *)malloc(R * sizeof(char));
+    bases[s] = std::make_unique<char[]>(R);
 
   for (i = 0; i < R; i++)
     bases[0][i] = i;
@@ -51,31 +52,19 @@ void makebases() // makes the list of all posible bases a chirotope could have,
   }
 }
 
-void removebases() // frees the memory used by bases
-{
-  int s;
-  for (s = 0; s < B; s++)
-    free(bases[s]);
-  free(bases);
-}
-
-void makeOM(struct OM *M) // allocates memory for an oriented matroid of rank R
-                          // on N elements
-{
-  M->plus = static_cast<unsigned int *>(malloc(nr_ints * sizeof(int)));
-  M->minus = static_cast<unsigned int *>(malloc(nr_ints * sizeof(int)));
+// allocates memory for an oriented matroid of rank R on N elements
+OM makeOM() {
+  OM M;
+  M.plus = std::make_unique<unsigned int[]>(nr_ints);
+  M.minus = std::make_unique<unsigned int[]>(nr_ints);
 
   int i;
   for (i = 0; i < nr_ints; i++) {
-    M->plus[i] = 0;
-    M->minus[i] = 0;
+    M.plus[i] = 0;
+    M.minus[i] = 0;
   }
-}
 
-void removeOM(struct OM *M) // frees the memory used by an oriented matroid
-{
-  free(M->plus);
-  free(M->minus);
+  return M;
 }
 
 void showbits(unsigned int *plus) // prints a list if integers in the binary
@@ -92,7 +81,7 @@ void showbits(unsigned int *plus) // prints a list if integers in the binary
       (plus[j] & (1u << i)) ? putchar('1') : putchar('0');
 }
 
-void showchirotope(struct OM M, FILE *out) // prints a chirotope
+void showchirotope(const OM &M, FILE *out) // prints a chirotope
 {
   int i, j;
 
@@ -169,10 +158,8 @@ int weakmap(
   return good == nr_ints;
 }
 
-int isequal(
-    struct OM M1,
-    struct OM M2) // checks whether the oriented matroids M1 and M2 are the same
-{
+// checks whether the oriented matroids M1 and M2 are the same
+int isequal(const OM &M1, const OM &M2) {
   int i, good;
   good = 0;
   for (i = 0; i < nr_ints; i++) // chi_1==chi_2
@@ -886,14 +873,14 @@ int sort(char a[]) // sorts integers in the array and returns the sign of the
   return sign;
 }
 
-char axB2(struct OM M, char sign, char s1, char s2, int in1, int in2)
+char axB2(const OM &M, char sign, char s1, char s2, int in1, int in2)
 // used in b2prime to check Axiom B2' in ischirotope, returns 1 if
 // \chi(y1,x2,x3)*\chi(x1,y2,y3) and \chi(x1,x2,x3)*\chi(y1,y2,y3) have the same
 // sign
 {
-  struct OM M1, M2;
-  makeOM(&M1);
-  makeOM(&M2);
+  OM M1 = makeOM();
+  OM M2 = makeOM();
+
   char i, j, p1, p2;
   long long int i1, i2;
   char res;
@@ -940,19 +927,15 @@ char axB2(struct OM M, char sign, char s1, char s2, int in1, int in2)
            ((M1.minus[p1] & i1) &&
             (M2.minus[p2] & i2))); //\chi(y1,x2,x3)*\chi(x1,y2,y3)
 
-  removeOM(&M1);
-  removeOM(&M2);
-
   return res;
 }
 
-char b2prime(struct OM M, char sign, char *X, char *Y) // checks Axiom B2'
+char b2prime(const OM &M, char sign, char *X, char *Y) // checks Axiom B2'
 {
   int s1, s2, in1, in2, i, j, q, sx, sy;
-  char *x, *y;
 
-  x = (char *)malloc(R * sizeof(char));
-  y = (char *)malloc(R * sizeof(char));
+  auto x = std::make_unique<char[]>(R);
+  auto y = std::make_unique<char[]>(R);
 
   for (i = 0; i < R; i++) {
     x[i] = X[i];
@@ -967,31 +950,26 @@ char b2prime(struct OM M, char sign, char *X, char *Y) // checks Axiom B2'
     x[0] = Y[j];
     y[j] = X[0];
 
-    s1 = sort(x); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
-    s2 = sort(y);
+    s1 = sort(x.get()); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
+    s2 = sort(y.get());
 
     if (s1 != 0 &&
         s2 != 0) // s1==0 means that two of y1,x2,x3 are the same, its chirotope
                  // value is 0 and we want \chi(y1,x2,x3)*\chi(x1,y2,y3)<0
     {
 
-      if (axB2(M, sign, s1, s2, ind(x), ind(y))) {
-        free(x);
-        free(y);
+      if (axB2(M, sign, s1, s2, ind(x.get()), ind(y.get()))) {
         return 1;
       }
     }
   }
 
-  free(x);
-  free(y);
   return 0;
 }
 
-char ischirotope(struct OM M) // checks chirotope axioms, see "Oriented
-                              // matroids" BLSWZ, Definition 3.5.3 returns 0 if
-                              // it is not a chirotope, 1 if it is a chirotope
-{
+// checks chirotope axioms, see "Oriented matroids" BLSWZ, Definition 3.5.3
+// returns 0 if it is not a chirotope, 1 if it is a chirotope
+char ischirotope(const OM &M) {
   char i, j, k, l, p, q;
   long long int h;
 
@@ -1007,9 +985,9 @@ char ischirotope(struct OM M) // checks chirotope axioms, see "Oriented
   if (k == nr_ints)
     return 0;
 
-  char *x, *y; //(B2') Lemma 3.5.4
-  x = (char *)malloc(R * sizeof(char));
-  y = (char *)malloc(R * sizeof(char));
+  //(B2') Lemma 3.5.4
+  auto x = std::make_unique<char[]>(R);
+  auto y = std::make_unique<char[]>(R);
 
   char sign, limit_i, limit_j;
   int pi, pj, mi, mj;
@@ -1067,10 +1045,8 @@ char ischirotope(struct OM M) // checks chirotope axioms, see "Oriented
             if (p == 1)
               sign = -sign;
 
-            if (b2prime(M, sign, x, y) == 0) // checks B2'
+            if (b2prime(M, sign, x.get(), y.get()) == 0) // checks B2'
             {
-              free(x);
-              free(y);
               return 0;
             }
           }
@@ -1079,8 +1055,6 @@ char ischirotope(struct OM M) // checks chirotope axioms, see "Oriented
     }
   }
 
-  free(x);
-  free(y);
   return 1;
 }
 
@@ -1104,10 +1078,8 @@ void standardizeOM(struct OM *M) // we store OMs in such a way that the
     }
 }
 
-void permutations(
-    char *p,
-    int l) // makes all permutations of N elements and stores them in perm
-{
+// makes all permutations of N elements and stores them in perm
+void permutations(char *p, int l) {
   char i;
   if (l == N) {
     for (i = 0; i < N; i++)
@@ -1141,9 +1113,9 @@ void makepermutations() // makes all permutations on N
   char i;
   int s;
 
-  perm = (char **)malloc(factorial(N) * sizeof(char *));
+  perm = std::make_unique<std::unique_ptr<char[]>[]>(factorial(N));
   for (s = 0; s < factorial(N); s++)
-    perm[s] = (char *)malloc(N * sizeof(char));
+    perm[s] = std::make_unique<char[]>(N);
 
   char p[N];
   for (i = 0; i < N; i++)
@@ -1152,20 +1124,9 @@ void makepermutations() // makes all permutations on N
   permutations(&p[0], 0);
 }
 
-void removepermutations() // frees the memory previously allocated for
-                          // permutations
-{
-  int s;
-  for (s = 0; s < w; s++)
-    free(perm[s]);
-  free(perm);
-}
-
-struct OM permute(struct OM M,
-                  char s[]) // given an OM, it transforms it into a new one -
-                            // permutes the labels of the elements s[] is an
-                            // array of length N that stores the permutation
-{
+// given an OM, it transforms it into a new one - permutes the labels of the
+// elements s[] is an array of length N that stores the permutation
+struct OM permute(const OM &M, char s[]) {
   int i, j;
   int b[B];     // b[i] is the index of the i-th basis after permutation
   char sign[B]; // sign[i] stores the sign of the permutation on the basis i
@@ -1180,8 +1141,7 @@ struct OM permute(struct OM M,
     b[i] = ind(x);
   }
 
-  struct OM X;
-  makeOM(&X);
+  struct OM X = makeOM();
 
   for (i = 0; i < nr_ints; i++) {
     if (i == nr_ints - 1)
@@ -1217,21 +1177,18 @@ int isfixed(
     struct OM M) // returns 1 if the OM M is fixed under the given group action
 {
   int i;
-  struct OM X;
-  makeOM(&X);
+  struct OM X = makeOM();
 
   for (i = 1; i < sizeofgroup; i++) {
     X = permute(M, action[i]);
     if (isequal(X, M) == 0) {
-      removeOM(&X);
       return 0;
     }
   }
-  removeOM(&X);
   return 1;
 }
 
-void writeOM(struct OM om, FILE *f) { showchirotope(om, f); }
+void writeOM(const OM &om, FILE *f) { showchirotope(om, f); }
 
 int readOM(struct OM *om, FILE *f) {
   for (int j = 0; j != nr_ints - 1; ++j) {

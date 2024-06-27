@@ -13,12 +13,10 @@ int B;       // the number of bases
 int nr_ints; // the number of integers needed to store the plus (resp. minus) of
              // a chirotope
 
-char **bases; // the list of bases
-
 int main() {
 
-  R = 3;
-  N = 5;
+  R = 2;
+  N = 8;
   makebases();
 
   int i, j, k;
@@ -69,8 +67,7 @@ int main() {
     putchar('\n');
   }
 
-  struct OM X;
-  makeOM(&X);
+  OM X = makeOM();
 
   while (fgets(text, 300, in) != NULL) // translate every OM
   {
@@ -94,10 +91,6 @@ int main() {
 
   fclose(in);
   fclose(out);
-
-  removeOM(&X);
-
-  removebases();
 
   return 0;
 }

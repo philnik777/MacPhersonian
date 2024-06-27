@@ -2,6 +2,7 @@
 #define _OMs_H_
 
 #include <stdio.h>
+#include <memory>
 
 // Oriented matroids of rank R on N elements
 
@@ -12,32 +13,26 @@ extern int B;       // the number of bases
 extern int nr_ints; // the number of integers needed to store the plus (resp. minus) of
              // a chirotope
 
-extern char **bases; // the list of bases
+inline std::unique_ptr<std::unique_ptr<char[]>[]> bases; // the list of bases
 
 struct OM {
-  unsigned int *plus;
-  unsigned int *minus;
+  std::unique_ptr<unsigned int[]> plus;
+  std::unique_ptr<unsigned int[]> minus;
 };
 
 // makes the list of all posible bases a chirotope could have, bases are 012,
 // 013,...
 void makebases();
 
-// frees the memory used by bases
-void removebases();
-
 // allocates memory for an oriented matroid of rank R on N elements
-void makeOM(struct OM *M);
-
-// frees the memory used by an oriented matroid
-void removeOM(struct OM *M);
+OM makeOM();
 
 // prints a list if integers in the binary representation (smallest bit on the
 // right)
 void showbits(unsigned int *plus);
 
 // prints a chirotope
-void showchirotope(struct OM M, FILE* out = stdout);
+void showchirotope(const OM& M, FILE* out = stdout);
 
 // counts the number of bases of a chirotope
 int countbases(struct OM M);
@@ -48,7 +43,7 @@ int countbases(struct OM M);
 int weakmap(struct OM M1, struct OM M2);
 
 // returns 1 if M1 and M2 are the same as oriented matroids
-int isequal(struct OM M1, struct OM M2);
+int isequal(const OM& M1, const OM& M2);
 
 // returns the index of the basis (a[0],a[1],...,a[R-1]) in the array bases[][],
 // assumes that a[0]<a[1]<...<a[R]
@@ -58,13 +53,13 @@ int ind(char *a);
 int sort(char *a);
 
 // used in b2prime to check Axiom B2' in ischirotope
-char axB2(struct OM M, char sign, char s1, char s2, int in1, int in2);
+char axB2(const OM& M, char sign, char s1, char s2, int in1, int in2);
 
 // checks Axiom B2' of BLSWZ, Lemma 3.5.4
-char b2prime(struct OM M, char sign, char *X, char *Y);
+char b2prime(const OM& M, char sign, char *X, char *Y);
 
 // checks chirotope axioms, see "Oriented matroids" BLSWZ, Definition 3.5.3
-char ischirotope(struct OM M);
+char ischirotope(const OM& M);
 
 // we store OMs in such a way that the largest basis is positive
 void standardizeOM(struct OM *M);
@@ -75,15 +70,12 @@ void permutations(char *p, int l);
 // makes all permutations on N
 void makepermutations();
 
-// frees the memory previously allocated for permutations
-void removepermutations();
-
 // computes n!
 int factorial(int n);
 
 // given an OM, it transforms it into a new one - permutes the labels of the
 // elements, the permutation is given by s
-struct OM permute(struct OM M, char s[]);
+OM permute(const OM& M, char s[]);
 
 // checks whether this OM is fixed under the group action
 int isfixed(struct OM M);
@@ -91,7 +83,7 @@ int isfixed(struct OM M);
 // frees the memory that is allocated for the group action
 void removegroupaction();
 
-void writeOM(struct OM, FILE *);
+void writeOM(const OM&, FILE *);
 int readOM(struct OM *, FILE *);
 
 #endif

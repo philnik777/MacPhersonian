@@ -15,11 +15,9 @@ int B;       // the number of bases
 int nr_ints; // the number of integers needed to store the plus (resp. minus) of
              // a chirotope
 
-char **bases; // the list of bases
-
 // makes the lower cone of a uniform OM M, works only for OMs with at most 64
 // bases -- it would be too slow otherwise, anyway
-int makechirotopes(struct OM M, FILE *out) {
+int makechirotopes(struct OM& M, FILE *out) {
   int c = 0;
   long long int i, j;
   long long int limit1, limit2;
@@ -33,8 +31,7 @@ int makechirotopes(struct OM M, FILE *out) {
   } else
     return -1;
 
-  struct OM X;
-  makeOM(&X);
+  struct OM X = makeOM();
 
   for (i = 0; i < limit1;
        i++) // checks for every subset of the bases of M whether it gives an OM
@@ -54,8 +51,6 @@ int makechirotopes(struct OM M, FILE *out) {
     }
   }
 
-  removeOM(&X);
-
   return c;
 }
 
@@ -68,14 +63,13 @@ int main(int argc, char *argv[]) {
     printf("An argument expected.\n");
     exit(EXIT_FAILURE);
   }
-  R = 3; // The code works only for B<=64!
-  N = 5;
+  R = 2; // The code works only for B<=64!
+  N = 8;
   makebases();
 
   FILE *in, *out;
   char text[300];
-  struct OM M;
-  makeOM(&M);
+  OM M = makeOM();
   int i = 0;
   int c;
 
@@ -130,12 +124,11 @@ int main(int argc, char *argv[]) {
 
     showchirotope(M);
 
-    makechirotopes(M, out);
+    c = makechirotopes(M, out);
+    printf("%d chirotopes\n", c);
   }
 
   fclose(out);
-  removeOM(&M);
-  removebases();
 
   return 0;
 }

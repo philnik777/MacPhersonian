@@ -242,8 +242,6 @@ int main(int argc, char *argv[]) {
   }
 
   removeOM(&M);
-  removebases();
-  removepermutations();
 
   printf("%d chirotopes\n", i);
 
