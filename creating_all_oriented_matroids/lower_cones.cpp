@@ -31,7 +31,7 @@ int makechirotopes(struct OM& M, FILE *out) {
   } else
     return -1;
 
-  struct OM X = makeOM();
+  OM X;
 
   for (i = 0; i < limit1;
        i++) // checks for every subset of the bases of M whether it gives an OM
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
   FILE *in, *out;
   char text[300];
-  OM M = makeOM();
+  OM M;
   int i = 0;
   int c;
 

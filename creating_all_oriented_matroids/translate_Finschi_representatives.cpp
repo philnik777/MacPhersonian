@@ -67,7 +67,7 @@ int main() {
     putchar('\n');
   }
 
-  OM X = makeOM();
+  OM X;
 
   while (fgets(text, 300, in) != NULL) // translate every OM
   {

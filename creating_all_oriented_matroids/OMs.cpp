@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <cassert>
 #include <memory>
+#include <print>
 #include <stdio.h>
 #include <stdlib.h>
 #include <utility>
@@ -30,6 +32,11 @@ void makebases() // makes the list of all posible bases a chirotope could have,
   if (B & 31)
     nr_ints++;
 
+  if (nr_ints > 4) {
+    std::print(stderr, "Required number of ints unexpectedly large");
+    std::exit(1);
+  }
+
   bases = std::make_unique<std::unique_ptr<char[]>[]>(B);
   for (s = 0; s < B; s++)
     bases[s] = std::make_unique<char[]>(R);
@@ -50,21 +57,6 @@ void makebases() // makes the list of all posible bases a chirotope could have,
       bases[s][i] = bases[s - 1][k] + i - k + 1;
     s++;
   }
-}
-
-// allocates memory for an oriented matroid of rank R on N elements
-OM makeOM() {
-  OM M;
-  M.plus = std::make_unique<unsigned int[]>(nr_ints);
-  M.minus = std::make_unique<unsigned int[]>(nr_ints);
-
-  int i;
-  for (i = 0; i < nr_ints; i++) {
-    M.plus[i] = 0;
-    M.minus[i] = 0;
-  }
-
-  return M;
 }
 
 void showbits(unsigned int *plus) // prints a list if integers in the binary
@@ -859,16 +851,13 @@ int sort(char a[]) // sorts integers in the array and returns the sign of the
         ind_min = i;
       }
     if (ind_min != sorted) {
-      j = a[sorted];
-      a[sorted] = min;
-      a[ind_min] = j;
+      std::swap(a[sorted], a[ind_min]);
       sign = -sign;
     }
     sorted++;
   }
 
-  for (i = 1; i < R; i++)
-    if (a[i - 1] == a[i])
+  if (std::adjacent_find(a, a + R) != a + R)
       return 0;
   return sign;
 }
@@ -878,8 +867,8 @@ char axB2(const OM &M, char sign, char s1, char s2, int in1, int in2)
 // \chi(y1,x2,x3)*\chi(x1,y2,y3) and \chi(x1,x2,x3)*\chi(y1,y2,y3) have the same
 // sign
 {
-  OM M1 = makeOM();
-  OM M2 = makeOM();
+  OM M1;
+  OM M2;
 
   char i, j, p1, p2;
   long long int i1, i2;
@@ -953,11 +942,9 @@ char b2prime(const OM &M, char sign, char *X, char *Y) // checks Axiom B2'
     s1 = sort(x.get()); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
     s2 = sort(y.get());
 
-    if (s1 != 0 &&
-        s2 != 0) // s1==0 means that two of y1,x2,x3 are the same, its chirotope
-                 // value is 0 and we want \chi(y1,x2,x3)*\chi(x1,y2,y3)<0
-    {
-
+    // s1==0 means that two of y1,x2,x3 are the same, its chirotope
+    // value is 0 and we want \chi(y1,x2,x3)*\chi(x1,y2,y3)<0
+    if (s1 != 0 && s2 != 0) {
       if (axB2(M, sign, s1, s2, ind(x.get()), ind(y.get()))) {
         return 1;
       }
@@ -1141,7 +1128,7 @@ struct OM permute(const OM &M, char s[]) {
     b[i] = ind(x);
   }
 
-  struct OM X = makeOM();
+  OM X;
 
   for (i = 0; i < nr_ints; i++) {
     if (i == nr_ints - 1)
@@ -1177,7 +1164,7 @@ int isfixed(
     struct OM M) // returns 1 if the OM M is fixed under the given group action
 {
   int i;
-  struct OM X = makeOM();
+  OM X;
 
   for (i = 1; i < sizeofgroup; i++) {
     X = permute(M, action[i]);
