@@ -1,5 +1,5 @@
-#ifndef _OMs_H_
-#define _OMs_H_
+#ifndef OMs_H
+#define OMs_H
 
 #include <mdspan>
 #include <memory>
@@ -40,12 +40,12 @@ static_assert(nr_ints <= 4, "Requires more ints than available in OM");
 
 // makes the list of all posible bases a chirotope could have, bases are 012,
 // 013,...
-constexpr std::array<char, B * R> makebases() {
-  std::array<char, B * R> ret;
+constexpr std::array<unsigned char, B * R> makebases() {
+  std::array<unsigned char, B * R> ret;
 
   auto bases = std::mdspan{ret.data(), B, R};
 
-  for (int i = 0; i < R; i++)
+  for (unsigned char i = 0; i < R; i++)
     bases[0, i] = i;
   int s = 1;
 
@@ -58,7 +58,7 @@ constexpr std::array<char, B * R> makebases() {
     for (int i = 0; i < k; i++)
       bases[s, i] = bases[s - 1, i];
     for (int i = k; i < R; i++)
-      bases[s, i] = bases[s - 1, k] + i - k + 1;
+      bases[s, i] = static_cast<unsigned char>(bases[s - 1, k] + i - k + 1);
     s++;
   }
 
@@ -67,8 +67,8 @@ constexpr std::array<char, B * R> makebases() {
 
 constexpr inline auto bases_backing = makebases();
 
-constexpr inline std::mdspan<const char, std::dextents<size_t, 2>> bases =
-    std::mdspan{bases_backing.data(), B, R}; // the list of bases
+constexpr inline std::mdspan<const unsigned char, std::dextents<size_t, 2>>
+    bases = std::mdspan{bases_backing.data(), B, R}; // the list of bases
 
 struct OM {
   OM() {
@@ -102,16 +102,16 @@ int isequal(const OM &M1, const OM &M2);
 
 // returns the index of the basis (a[0],a[1],...,a[R-1]) in the array bases[][],
 // assumes that a[0]<a[1]<...<a[R]
-int ind(char *a);
+int ind(unsigned char *a);
 
 // sorts integers in the array and returns the sign of the permutation
-int sort(char *a);
+char sort(unsigned char *a);
 
 // used in b2prime to check Axiom B2' in ischirotope
 char axB2(const OM &M, char sign, char s1, char s2, int in1, int in2);
 
 // checks Axiom B2' of BLSWZ, Lemma 3.5.4
-char b2prime(const OM &M, char sign, char *X, char *Y);
+char b2prime(const OM &M, char sign, unsigned char *X, unsigned char *Y);
 
 // checks chirotope axioms, see "Oriented matroids" BLSWZ, Definition 3.5.3
 char ischirotope(const OM &M);
@@ -126,11 +126,17 @@ void permutations(char *p, int l);
 void makepermutations();
 
 // computes n!
-int factorial(int n);
+constexpr int factorial(int n) {
+  int i, R;
+  R = 1;
+  for (i = 2; i <= n; i++)
+    R *= i;
+  return R;
+}
 
 // given an OM, it transforms it into a new one - permutes the labels of the
 // elements, the permutation is given by s
-OM permute(const OM &M, char s[]);
+OM permute(const OM &M, unsigned char s[]);
 
 // checks whether this OM is fixed under the group action
 int isfixed(struct OM M);
@@ -141,4 +147,4 @@ void removegroupaction();
 void writeOM(const OM &, FILE *);
 int readOM(struct OM *, FILE *);
 
-#endif
+#endif // OMs_H

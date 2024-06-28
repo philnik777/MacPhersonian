@@ -8,13 +8,18 @@
 
 #include "OMs.h"
 
-int w;                                           // number of permutations
-std::unique_ptr<std::unique_ptr<char[]>[]> perm; // the list of permutations
+// number of permutations
+static size_t w;
 
-int sizeofgroup; // the number of elements of the group that acts on [N] (and
-                 // thus on MacP)
-char **action;   // the list of elements of the group, seen as a subgroup of the
-                 // permutation group
+// the list of permutations
+static std::unique_ptr<std::unique_ptr<char[]>[]> perm;
+
+// the number of elements of the group that acts on [N] (and thus on MacP)
+static int sizeofgroup;
+
+// the list of elements of the group, seen as a subgroup of the permutation
+// group
+static unsigned char **action;
 
 void showbits(unsigned int *plus) // prints a list if integers in the binary
                                   // representation (smallest bit on the right)
@@ -78,13 +83,12 @@ int weakmap(
                   // we make only one chirotope from each pair chi, -chi
 {
   int i;
-  int x, y;
 
   int good = 0;
 
   for (i = 0; i < nr_ints; i++) {
-    x = M1.plus[i] ^ M2.plus[i];
-    y = M1.minus[i] ^ M2.minus[i];
+    auto x = M1.plus[i] ^ M2.plus[i];
+    auto y = M1.minus[i] ^ M2.minus[i];
     if (((x & M1.plus[i]) == x) && ((y & M1.minus[i]) == y)) // chi_1 >= chi_2
       good++;
     else
@@ -96,8 +100,8 @@ int weakmap(
 
   good = 0;
   for (i = 0; i < nr_ints; i++) {
-    x = M1.plus[i] ^ M2.minus[i];
-    y = M1.minus[i] ^ M2.plus[i];
+    auto x = M1.plus[i] ^ M2.minus[i];
+    auto y = M1.minus[i] ^ M2.plus[i];
     if (((x & M1.plus[i]) == x) && ((y & M1.minus[i]) == y)) // chi_1 >= -chi_2
       good++;
     else
@@ -132,8 +136,8 @@ int isequal(const OM &M1, const OM &M2) {
 }
 
 // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
-// array bases[][], assumes that a[0]<a[1]<...<a[R]
-int ind(char *a) {
+// array bases[][], assumes that a[0] < a[1] < ... < a[R]
+int ind(unsigned char *a) {
   if (R == 3 && N <= 9) // quick code for common used parameters
   {
     if (N == 9) {
@@ -533,10 +537,9 @@ int ind(char *a) {
   std::unreachable();
 }
 
-int sort(char a[]) // sorts integers in the array and returns the sign of the
-                   // permutation
-{
-  char p, q;
+// sorts integers in the array and returns the sign of the permutation
+char sort(unsigned char a[]) {
+  unsigned char p;
   if (R == 3) { // quick code for three integers
     if (a[1] < a[0]) {
       if (a[2] < a[1]) {
@@ -793,17 +796,19 @@ int sort(char a[]) // sorts integers in the array and returns the sign of the
     }
   }
 
-  int sorted, min, ind_min, i, j, sign; // slow code, but works for all R
+  int sorted, min, ind_min, i; // slow code, but works for all R
 
   sorted = 0;
-  sign = 1;
+  char sign = 1;
   while (sorted < R) {
     min = N;
-    for (i = sorted; i < R; i++)
+    for (i = sorted; i < R; i++) {
       if (a[i] < min) {
         min = a[i];
         ind_min = i;
       }
+    }
+
     if (ind_min != sorted) {
       std::swap(a[sorted], a[ind_min]);
       sign = -sign;
@@ -824,36 +829,35 @@ char axB2(const OM &M, char sign, char s1, char s2, int in1, int in2)
   OM M1;
   OM M2;
 
-  char i, j, p1, p2;
   long long int i1, i2;
   char res;
   if (s1 == 1) // if sign(y1,x2,x3)=1, then chi(y1,x2,x3) is exactly what we
                // give by plus,minus;
-    for (i = 0; i < nr_ints; i++) {
+    for (size_t i = 0; i < nr_ints; i++) {
       M1.plus[i] = M.plus[i];
       M1.minus[i] = M.minus[i];
     }
   else // if sign(y1,x2,x3)=-1, then we have to switch the signs of the bases
        // (chirotopes are alternating)
-    for (i = 0; i < nr_ints; i++) {
+    for (size_t i = 0; i < nr_ints; i++) {
       M1.plus[i] = M.minus[i];
       M1.minus[i] = M.plus[i];
     }
 
   if (s2 == 1) // the same as for s1
-    for (i = 0; i < nr_ints; i++) {
+    for (size_t i = 0; i < nr_ints; i++) {
       M2.plus[i] = M.plus[i];
       M2.minus[i] = M.minus[i];
     }
   else // if sign(y1,x2,x3)=-1, then we have to switch the signs of the bases
        // (chirotopes are alternating)
-    for (i = 0; i < nr_ints; i++) {
+    for (size_t i = 0; i < nr_ints; i++) {
       M2.plus[i] = M.minus[i];
       M2.minus[i] = M.plus[i];
     }
 
-  p1 = in1 >> 5;
-  p2 = in2 >> 5;
+  int p1 = in1 >> 5;
+  int p2 = in2 >> 5;
   in1 = in1 & 31;
   in2 = in2 & 31;
 
@@ -873,12 +877,12 @@ char axB2(const OM &M, char sign, char s1, char s2, int in1, int in2)
   return res;
 }
 
-char b2prime(const OM &M, char sign, char *X, char *Y) // checks Axiom B2'
-{
-  int s1, s2, in1, in2, i, j, q, sx, sy;
+// checks Axiom B2'
+char b2prime(const OM &M, char sign, unsigned char *X, unsigned char *Y) {
+  int i, j;
 
-  char x[R];
-  char y[R];
+  unsigned char x[R];
+  unsigned char y[R];
 
   for (i = 0; i < R; i++) {
     x[i] = X[i];
@@ -893,8 +897,8 @@ char b2prime(const OM &M, char sign, char *X, char *Y) // checks Axiom B2'
     x[0] = Y[j];
     y[j] = X[0];
 
-    s1 = sort(x); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
-    s2 = sort(y);
+    auto s1 = sort(x); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
+    auto s2 = sort(y);
 
     // s1==0 means that two of y1,x2,x3 are the same, its chirotope
     // value is 0 and we want \chi(y1,x2,x3)*\chi(x1,y2,y3)<0
@@ -911,34 +915,34 @@ char b2prime(const OM &M, char sign, char *X, char *Y) // checks Axiom B2'
 // checks chirotope axioms, see "Oriented matroids" BLSWZ, Definition 3.5.3
 // returns 0 if it is not a chirotope, 1 if it is a chirotope
 char ischirotope(const OM &M) {
-  char i, j, k, l, p, q;
   long long int h;
 
-  for (k = 0; k < nr_ints; k++)
+  for (size_t k = 0; k < nr_ints; k++) {
     if (M.plus[k] &
         M.minus[k]) // if the same basis is both positive and negative
       return 0;
+  }
 
-  for (k = 0; k < nr_ints; k++)
+  size_t k;
+  for (k = 0; k < nr_ints; k++) {
     if (M.plus[k] != 0 || M.minus[k] != 0) //(B0)
       break;
+  }
 
   if (k == nr_ints)
     return 0;
 
   //(B2') Lemma 3.5.4
-  auto x = std::make_unique<char[]>(R);
-  auto y = std::make_unique<char[]>(R);
+  auto x = std::make_unique<unsigned char[]>(R);
+  auto y = std::make_unique<unsigned char[]>(R);
 
-  char sign, limit_i, limit_j;
+  char sign;
   int pi, pj, mi, mj;
 
   for (k = 0; k < nr_ints; k++) {
-    if (k == nr_ints)
-      limit_i = B & 31;
-    else
-      limit_i = 32;
-    for (i = 0; i < limit_i; i++) {
+    size_t limit_i = (k == nr_ints) ? B & 31 : 32;
+
+    for (size_t i = 0; i < limit_i; i++) {
 
       h = 1u << i;
       pi = M.plus[k] & h;  // pi!=0 iff \chi(bases[i])=1
@@ -948,16 +952,11 @@ char ischirotope(const OM &M) {
            0)) //\chi(bases[i])=0, we do not have to worry about this basis
         continue;
 
-      for (l = k; l < nr_ints; l++) {
+      for (size_t l = k; l < nr_ints; l++) {
 
-        if (l == k)
-          j = i + 1;
-        else
-          j = 0;
-        if (l == nr_ints - 1)
-          limit_j = B & 31;
-        else
-          limit_j = 32;
+        auto j = (l == k) ? i + 1 : 0;
+        size_t limit_j = (l == nr_ints - 1) ? B & 31 : 32;
+
         for (; j < limit_j; j++) {
           h = 1u << j;
           pj = M.plus[l] & h;
@@ -972,11 +971,11 @@ char ischirotope(const OM &M) {
                    (mi && mj)) //\chi(x_1,x_2,x_3)* \chi(y_1,y_2,y_3)=1
             sign = 1;
 
-          for (p = 0; p < R; p++) // we have to check B2' for all permutations
+          for (size_t p = 0; p < R; p++) // we have to check B2' for all permutations
                                   // of x1,x2,x3, but it suffices to have all
                                   // entries of x in the first position
           {
-            for (q = 0; q < R; q++) {
+            for (size_t q = 0; q < R; q++) {
               x[q] = bases[i + (k << 5), q];
               y[q] = bases[j + (l << 5), q];
             }
@@ -1002,35 +1001,36 @@ char ischirotope(const OM &M) {
 void standardizeOM(struct OM *M) // we store OMs in such a way that the
                                  // lexicographically largest basis is positive
 {
-  char i;
-  int x;
+  signed char i = 0;
+  unsigned int x;
 
-  for (i = nr_ints - 1; i >= 0; i--)
+  for (int i = nr_ints - 1; i >= 0; i--) {
     if (M->plus[i] < M->minus[i])
       i = -2;
     else if (M->minus[i] < M->plus[i])
       i = -1;
+  }
 
-  if (i != -2)
-    for (i = 0; i < nr_ints; i++) {
+  if (i != -2) {
+    for (size_t i = 0; i < nr_ints; i++) {
       x = M->plus[i];
       M->plus[i] = M->minus[i];
       M->minus[i] = x;
     }
+  }
 }
 
 // makes all permutations of N elements and stores them in perm
 void permutations(char *p, int l) {
-  char i;
   if (l == N) {
-    for (i = 0; i < N; i++)
+    for (size_t i = 0; i < N; i++)
       perm[w][i] = p[i];
     w++;
     return;
   }
-  char j, x;
-  for (j = l; j < N; j++) {
-    x = p[l];
+
+  for (int j = l; j < N; j++) {
+    auto x = p[l];
     p[l] = p[j];
     p[j] = x;
     permutations(p, l + 1);
@@ -1041,40 +1041,29 @@ void permutations(char *p, int l) {
   return;
 }
 
-int factorial(int n) {
-  int i, R;
-  R = 1;
-  for (i = 2; i <= n; i++)
-    R *= i;
-  return R;
-}
-
 void makepermutations() // makes all permutations on N
 {
-  char i;
-  int s;
-
   perm = std::make_unique<std::unique_ptr<char[]>[]>(factorial(N));
-  for (s = 0; s < factorial(N); s++)
+  for (size_t s = 0; s < factorial(N); s++)
     perm[s] = std::make_unique<char[]>(N);
 
   char p[N];
-  for (i = 0; i < N; i++)
-    p[i] = i;
+  for (size_t i = 0; i < N; i++)
+    p[i] = static_cast<char>(i);
   w = 0;
   permutations(&p[0], 0);
 }
 
 // given an OM, it transforms it into a new one - permutes the labels of the
 // elements s[] is an array of length N that stores the permutation
-struct OM permute(const OM &M, char s[]) {
+struct OM permute(const OM &M, unsigned char s[]) {
   int i, j;
   int b[B];     // b[i] is the index of the i-th basis after permutation
   char sign[B]; // sign[i] stores the sign of the permutation on the basis i
-  char x[R];
+  unsigned char x[R];
   long long int t;
   char limit;
-  char p, q;
+  char q;
   for (i = 0; i < B; i++) {
     for (j = 0; j < R; j++)
       x[j] = s[bases[i, j]];
@@ -1093,7 +1082,7 @@ struct OM permute(const OM &M, char s[]) {
     for (j = 0; j < limit; j++) {
       t = 1 << j;
 
-      p = b[(i << 5) + j] >> 5;
+      auto p = b[(i << 5) + j] >> 5;
       q = b[(i << 5) + j] & 31;
 
       if (((M.plus[i] & t) && sign[(i << 5) + j] == 1) ||
@@ -1114,9 +1103,8 @@ struct OM permute(const OM &M, char s[]) {
   return X;
 }
 
-int isfixed(
-    struct OM M) // returns 1 if the OM M is fixed under the given group action
-{
+// returns 1 if the OM M is fixed under the given group action
+int isfixed(struct OM M) {
   int i;
   OM X;
 
@@ -1136,7 +1124,7 @@ int readOM(struct OM *om, FILE *f) {
     unsigned int plus = 0;
     unsigned int minus = 0;
     for (int i = 0; i != 32; ++i) {
-      char c = fgetc(f);
+      char c = static_cast<char>(fgetc(f));
 
       switch (c) {
       case '+':
@@ -1158,7 +1146,7 @@ int readOM(struct OM *om, FILE *f) {
   unsigned int plus = 0;
   unsigned int minus = 0;
   for (int i = 0; i != (B & 31); ++i) {
-    char c = fgetc(f);
+    char c = static_cast<char>(fgetc(f));
 
     switch (c) {
     case '+':

@@ -36,7 +36,7 @@ int main() {
           "%d on %d elements:\n",
           R, N);
 
-  char b[B][R];
+  unsigned char b[B][R];
 
   int ubound, lbound;
 
@@ -48,7 +48,7 @@ int main() {
   {
     fgets(text, 300, in);
     for (j = lbound; j < ubound; j++)
-      b[j - lbound][i] = text[j] - '0' - 1;
+      b[j - lbound][i] = static_cast<unsigned char>(text[j] - '0' - 1);
   }
 
   for (i = 0; i < B; i++) {

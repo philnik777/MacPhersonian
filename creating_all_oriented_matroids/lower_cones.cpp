@@ -10,7 +10,7 @@
 
 // makes the lower cone of a uniform OM M, works only for OMs with at most 64
 // bases -- it would be too slow otherwise, anyway
-int makechirotopes(struct OM& M, FILE *out) {
+static int makechirotopes(struct OM &M, FILE *out) {
   int c = 0;
   long long int i, j;
   long long int limit1, limit2;
@@ -48,14 +48,13 @@ int makechirotopes(struct OM& M, FILE *out) {
 }
 
 int main(int argc, char *argv[]) {
-  int step; // gets the number of a lower cone
-  if (argc == 2) {
-    char *ptr;
-    step = strtol(argv[1], &ptr, 10);
-  } else {
+  if (argc != 2) {
     printf("An argument expected.\n");
     exit(EXIT_FAILURE);
   }
+
+  char *ptr;
+  auto step = strtol(argv[1], &ptr, 10); // gets the number of a lower cone
   makebases();
 
   FILE *in, *out;
@@ -64,7 +63,7 @@ int main(int argc, char *argv[]) {
   int i = 0;
   int c;
 
-  sprintf(text, "lower_cones_rank%d_%delements_%d.txt", R, N,
+  sprintf(text, "lower_cones_rank%d_%delements_%ld.txt", R, N,
           step); // the output - all elements in the lower cone of the step-th
                  // uniform OM
 
@@ -74,7 +73,7 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
   fprintf(out,
-          "Elements of lower cone of the %d-th uniform representative (under "
+          "Elements of lower cone of the %ld-th uniform representative (under "
           "reorientations and permutations) of rank %d on %d elements:\n",
           step, R, N);
 

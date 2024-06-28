@@ -9,11 +9,25 @@ add_executable(translate_finschi_representatives creating_all_oriented_matroids/
                                                  creating_all_oriented_matroids/OMs.cpp)
 
 target_compile_options(lower_cones PRIVATE
-                       -Wno-vla-cxx-extension # FIXME: Remove all VLAs
+                       -Weverything
+                       -Wno-unsafe-buffer-usage
+                       -Wno-shadow
+                       -Wno-c++98-compat-pedantic
+                       -Wno-exit-time-destructors
+                       -Wno-global-constructors
+                       -Wno-documentation-unknown-command
+                       -Wno-conditional-uninitialized # FIXME: Enable this warning
                       )
 
 target_compile_options(translate_finschi_representatives PRIVATE
-                       -Wno-vla-cxx-extension # FIXME: Remove all VLAs
+                       -Weverything
+                       -Wno-unsafe-buffer-usage
+                       -Wno-shadow
+                       -Wno-c++98-compat-pedantic
+                       -Wno-exit-time-destructors
+                       -Wno-global-constructors
+                       -Wno-documentation-unknown-command
+                       -Wno-conditional-uninitialized # FIXME: Enable this warning
                       )
 
 set_target_properties(lower_cones PROPERTIES
