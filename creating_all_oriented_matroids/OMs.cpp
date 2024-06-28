@@ -137,7 +137,7 @@ int isequal(const OM &M1, const OM &M2) {
 
 // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
 // array bases[][], assumes that a[0] < a[1] < ... < a[R]
-int ind(unsigned char *a) {
+int ind(std::array<unsigned char, R> a) {
   if (R == 3 && N <= 9) // quick code for common used parameters
   {
     if (N == 9) {
@@ -897,7 +897,7 @@ char b2prime(const OM &M, char sign, std::array<unsigned char, R> X,
     // s1==0 means that two of y1,x2,x3 are the same, its chirotope
     // value is 0 and we want \chi(y1,x2,x3)*\chi(x1,y2,y3)<0
     if (s1 != 0 && s2 != 0) {
-      if (axB2(M, sign, s1, s2, ind(x.data()), ind(y.data()))) {
+      if (axB2(M, sign, s1, s2, ind(x), ind(y))) {
         return 1;
       }
     }
@@ -1053,14 +1053,14 @@ struct OM permute(const OM &M, unsigned char s[]) {
   int i, j;
   int b[B];     // b[i] is the index of the i-th basis after permutation
   char sign[B]; // sign[i] stores the sign of the permutation on the basis i
-  unsigned char x[R];
+  std::array<unsigned char, R> x;
   long long int t;
   char limit;
   char q;
   for (i = 0; i < B; i++) {
     for (j = 0; j < R; j++)
       x[j] = s[bases[i, j]];
-    sign[i] = sort(x);
+    sign[i] = sort(x.data());
     b[i] = ind(x);
   }
 

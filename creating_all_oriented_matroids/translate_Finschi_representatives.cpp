@@ -36,7 +36,7 @@ int main() {
           "%d on %d elements:\n",
           R, N);
 
-  unsigned char b[B][R];
+  std::array<unsigned char, R> b[B];
 
   int ubound, lbound;
 

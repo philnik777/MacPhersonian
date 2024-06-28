@@ -2,7 +2,6 @@
 #define OMs_H
 
 #include <mdspan>
-#include <memory>
 #include <stdio.h>
 
 // Oriented matroids of rank R on N elements
@@ -40,10 +39,13 @@ static_assert(nr_ints <= 4, "Requires more ints than available in OM");
 
 // makes the list of all posible bases a chirotope could have, bases are 012,
 // 013,...
+using BasesT = std::mdspan<const unsigned char, std::dextents<size_t, 2>>;
+using MutableBasesT = std::mdspan<unsigned char, std::dextents<size_t, 2>>;
+
 constexpr std::array<unsigned char, B * R> makebases() {
   std::array<unsigned char, B * R> ret;
 
-  auto bases = std::mdspan{ret.data(), B, R};
+  auto bases = MutableBasesT{ret.data(), B, R};
 
   for (unsigned char i = 0; i < R; i++)
     bases[0, i] = i;
@@ -67,8 +69,7 @@ constexpr std::array<unsigned char, B * R> makebases() {
 
 constexpr inline auto bases_backing = makebases();
 
-constexpr inline std::mdspan<const unsigned char, std::dextents<size_t, 2>>
-    bases = std::mdspan{bases_backing.data(), B, R}; // the list of bases
+constexpr inline BasesT bases{bases_backing.data(), B, R}; // the list of bases
 
 struct OM {
   OM() {
@@ -102,7 +103,7 @@ int isequal(const OM &M1, const OM &M2);
 
 // returns the index of the basis (a[0],a[1],...,a[R-1]) in the array bases[][],
 // assumes that a[0]<a[1]<...<a[R]
-int ind(unsigned char *a);
+int ind(std::array<unsigned char, R> a);
 
 // sorts integers in the array and returns the sign of the permutation
 char sort(unsigned char *a);
