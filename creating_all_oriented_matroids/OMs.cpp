@@ -16,48 +16,6 @@ int sizeofgroup; // the number of elements of the group that acts on [N] (and
 char **action;   // the list of elements of the group, seen as a subgroup of the
                  // permutation group
 
-void makebases() // makes the list of all posible bases a chirotope could have,
-                 // bases are 012, 013,...
-{
-  int i, k, s;
-
-  B = 1;
-  for (i = N; i > N - R; i--)
-    B *= i;
-  for (i = 2; i <= R; i++)
-    B /= i;
-
-  nr_ints = B >> 5;
-
-  if (B & 31)
-    nr_ints++;
-
-  if (nr_ints > 4) {
-    std::print(stderr, "Required number of ints unexpectedly large");
-    std::exit(1);
-  }
-
-  bases_backing = std::make_unique<char[]>(B * R);
-  bases = std::mdspan{bases_backing.get(), B, R};
-
-  for (i = 0; i < R; i++)
-    bases[0, i] = i;
-  s = 1;
-
-  while (1) {
-    k = R - 1;
-    while (k >= 0 && bases[s - 1, k] >= N - R + k)
-      k--;
-    if (k == -1)
-      break;
-    for (i = 0; i < k; i++)
-      bases[s, i] = bases[s - 1, i];
-    for (i = k; i < R; i++)
-      bases[s, i] = bases[s - 1, k] + i - k + 1;
-    s++;
-  }
-}
-
 void showbits(unsigned int *plus) // prints a list if integers in the binary
                                   // representation (smallest bit on the right)
 {
@@ -919,8 +877,8 @@ char b2prime(const OM &M, char sign, char *X, char *Y) // checks Axiom B2'
 {
   int s1, s2, in1, in2, i, j, q, sx, sy;
 
-  auto x = std::make_unique<char[]>(R);
-  auto y = std::make_unique<char[]>(R);
+  char x[R];
+  char y[R];
 
   for (i = 0; i < R; i++) {
     x[i] = X[i];
@@ -935,13 +893,13 @@ char b2prime(const OM &M, char sign, char *X, char *Y) // checks Axiom B2'
     x[0] = Y[j];
     y[j] = X[0];
 
-    s1 = sort(x.get()); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
-    s2 = sort(y.get());
+    s1 = sort(x); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
+    s2 = sort(y);
 
     // s1==0 means that two of y1,x2,x3 are the same, its chirotope
     // value is 0 and we want \chi(y1,x2,x3)*\chi(x1,y2,y3)<0
     if (s1 != 0 && s2 != 0) {
-      if (axB2(M, sign, s1, s2, ind(x.get()), ind(y.get()))) {
+      if (axB2(M, sign, s1, s2, ind(x), ind(y))) {
         return 1;
       }
     }

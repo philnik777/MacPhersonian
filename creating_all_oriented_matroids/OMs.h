@@ -7,15 +7,68 @@
 
 // Oriented matroids of rank R on N elements
 
-extern int R; // rank
-extern int N; // the number of elements
+// The code works only for B<=64!
+inline constexpr int R = 2; // rank
+inline constexpr int N = 8; // the number of elements
 
-extern int B;       // the number of bases
-extern int nr_ints; // the number of integers needed to store the plus (resp.
-                    // minus) of a chirotope
+constexpr int calculate_bases_count() {
+  int bases_count = 1;
+  for (int i = N; i > N - R; i--)
+    bases_count *= i;
+  for (int i = 2; i <= R; i++)
+    bases_count /= i;
 
-inline std::unique_ptr<char[]> bases_backing;
-inline std::mdspan<char, std::dextents<size_t, 2>> bases; // the list of bases
+  return bases_count;
+}
+
+inline constexpr int B = calculate_bases_count(); // the number of bases
+
+constexpr int calculate_nr_ints() {
+  int nr_ints = B >> 5;
+
+  if (B & 31)
+    nr_ints++;
+
+  return nr_ints;
+}
+
+// the number of integers needed to store the plus (resp.
+// minus) of a chirotope
+inline constexpr int nr_ints = calculate_nr_ints();
+
+static_assert(nr_ints <= 4, "Requires more ints than available in OM");
+
+// makes the list of all posible bases a chirotope could have, bases are 012,
+// 013,...
+constexpr std::array<char, B * R> makebases() {
+  std::array<char, B * R> ret;
+
+  auto bases = std::mdspan{ret.data(), B, R};
+
+  for (int i = 0; i < R; i++)
+    bases[0, i] = i;
+  int s = 1;
+
+  while (1) {
+    int k = R - 1;
+    while (k >= 0 && bases[s - 1, k] >= N - R + k)
+      k--;
+    if (k == -1)
+      break;
+    for (int i = 0; i < k; i++)
+      bases[s, i] = bases[s - 1, i];
+    for (int i = k; i < R; i++)
+      bases[s, i] = bases[s - 1, k] + i - k + 1;
+    s++;
+  }
+
+  return ret;
+}
+
+constexpr inline auto bases_backing = makebases();
+
+constexpr inline std::mdspan<const char, std::dextents<size_t, 2>> bases =
+    std::mdspan{bases_backing.data(), B, R}; // the list of bases
 
 struct OM {
   OM() {
@@ -28,10 +81,6 @@ struct OM {
   unsigned int plus[4];
   unsigned int minus[4];
 };
-
-// makes the list of all posible bases a chirotope could have, bases are 012,
-// 013,...
-void makebases();
 
 // prints a list if integers in the binary representation (smallest bit on the
 // right)

@@ -6,17 +6,7 @@
 
 // reads representatives from the Finschi's list and stores it in our format.
 
-int R; // rank
-int N; // the number of elements
-
-int B;       // the number of bases
-int nr_ints; // the number of integers needed to store the plus (resp. minus) of
-             // a chirotope
-
 int main() {
-
-  R = 2;
-  N = 8;
   makebases();
 
   int i, j, k;

@@ -8,13 +8,6 @@
 // reorientation and permutation classes, as found by Finschi, and constructs
 // their lower cones.
 
-int R; // rank
-int N; // the number of elements
-
-int B;       // the number of bases
-int nr_ints; // the number of integers needed to store the plus (resp. minus) of
-             // a chirotope
-
 // makes the lower cone of a uniform OM M, works only for OMs with at most 64
 // bases -- it would be too slow otherwise, anyway
 int makechirotopes(struct OM& M, FILE *out) {
@@ -63,8 +56,6 @@ int main(int argc, char *argv[]) {
     printf("An argument expected.\n");
     exit(EXIT_FAILURE);
   }
-  R = 2; // The code works only for B<=64!
-  N = 8;
   makebases();
 
   FILE *in, *out;
