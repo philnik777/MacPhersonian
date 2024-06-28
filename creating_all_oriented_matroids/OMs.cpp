@@ -173,9 +173,9 @@ int isequal(const OM &M1, const OM &M2) {
     return 0;
 }
 
-int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
-                 // array bases[][], assumes that a[0]<a[1]<...<a[R]
-{
+// returns the index of the basis (a[0],a[1],...,a[R-1]) in the
+// array bases[][], assumes that a[0]<a[1]<...<a[R]
+int ind(char *a) {
   if (R == 3 && N <= 9) // quick code for common used parameters
   {
     if (N == 9) {
@@ -546,7 +546,7 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
   int l, u, m, i; // code that works for every parameter, slow...
   l = 0;
   u = B - 1;
-  m = (l + u) >> 1;
+  m = (l + u) / 2;
 
   for (i = 0; i < R; i++) {
     while (a[i] != bases[m, i]) {
@@ -557,7 +557,7 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
       }
       if (l == u)
         return l;
-      m = (u + l) >> 1;
+      m = (u + l) / 2;
     }
     l = m;
     u = m;
