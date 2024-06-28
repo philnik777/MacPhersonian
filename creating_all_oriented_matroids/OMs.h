@@ -1,6 +1,7 @@
 #ifndef _OMs_H_
 #define _OMs_H_
 
+#include <mdspan>
 #include <memory>
 #include <stdio.h>
 
@@ -13,7 +14,8 @@ extern int B;       // the number of bases
 extern int nr_ints; // the number of integers needed to store the plus (resp.
                     // minus) of a chirotope
 
-inline std::unique_ptr<std::unique_ptr<char[]>[]> bases; // the list of bases
+inline std::unique_ptr<char[]> bases_backing;
+inline std::mdspan<char, std::dextents<size_t, 2>> bases; // the list of bases
 
 struct OM {
   OM() {

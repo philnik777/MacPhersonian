@@ -37,24 +37,23 @@ void makebases() // makes the list of all posible bases a chirotope could have,
     std::exit(1);
   }
 
-  bases = std::make_unique<std::unique_ptr<char[]>[]>(B);
-  for (s = 0; s < B; s++)
-    bases[s] = std::make_unique<char[]>(R);
+  bases_backing = std::make_unique<char[]>(B * R);
+  bases = std::mdspan{bases_backing.get(), B, R};
 
   for (i = 0; i < R; i++)
-    bases[0][i] = i;
+    bases[0, i] = i;
   s = 1;
 
   while (1) {
     k = R - 1;
-    while (k >= 0 && bases[s - 1][k] >= N - R + k)
+    while (k >= 0 && bases[s - 1, k] >= N - R + k)
       k--;
     if (k == -1)
       break;
     for (i = 0; i < k; i++)
-      bases[s][i] = bases[s - 1][i];
+      bases[s, i] = bases[s - 1, i];
     for (i = k; i < R; i++)
-      bases[s][i] = bases[s - 1][k] + i - k + 1;
+      bases[s, i] = bases[s - 1, k] + i - k + 1;
     s++;
   }
 }
@@ -550,25 +549,22 @@ int ind(char *a) // returns the index of the basis (a[0],a[1],...,a[R-1]) in the
   m = (l + u) >> 1;
 
   for (i = 0; i < R; i++) {
-    while (a[i] != bases[m][i])
-      if (a[i] > bases[m][i]) {
+    while (a[i] != bases[m, i]) {
+      if (a[i] > bases[m, i]) {
         l = m + 1;
-        if (l == u)
-          return l;
-        m = (u + l) >> 1;
-
-      } else if (a[i] < bases[m][i]) {
+      } else if (a[i] < bases[m, i]) {
         u = m - 1;
-        if (l == u)
-          return l;
-        m = (u + l) >> 1;
       }
+      if (l == u)
+        return l;
+      m = (u + l) >> 1;
+    }
     l = m;
     u = m;
-    while (l >= 0 && a[i] == bases[l][i])
+    while (l >= 0 && a[i] == bases[l, i])
       l--;
     l++;
-    while (u < B && a[i] == bases[u][i])
+    while (u < B && a[i] == bases[u, i])
       u++;
     u--;
     if (l == u)
@@ -858,7 +854,7 @@ int sort(char a[]) // sorts integers in the array and returns the sign of the
   }
 
   if (std::adjacent_find(a, a + R) != a + R)
-      return 0;
+    return 0;
   return sign;
 }
 
@@ -1023,11 +1019,11 @@ char ischirotope(const OM &M) {
                                   // entries of x in the first position
           {
             for (q = 0; q < R; q++) {
-              x[q] = bases[i + (k << 5)][q];
-              y[q] = bases[j + (l << 5)][q];
+              x[q] = bases[i + (k << 5), q];
+              y[q] = bases[j + (l << 5), q];
             }
-            x[0] = bases[i + (k << 5)][p];
-            x[p] = bases[i + (k << 5)][0];
+            x[0] = bases[i + (k << 5), p];
+            x[p] = bases[i + (k << 5), 0];
 
             if (p == 1)
               sign = -sign;
@@ -1123,7 +1119,7 @@ struct OM permute(const OM &M, char s[]) {
   char p, q;
   for (i = 0; i < B; i++) {
     for (j = 0; j < R; j++)
-      x[j] = s[bases[i][j]];
+      x[j] = s[bases[i, j]];
     sign[i] = sort(x);
     b[i] = ind(x);
   }
