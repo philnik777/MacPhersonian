@@ -78,8 +78,8 @@ struct OM {
     }
   }
 
-  unsigned int plus[4];
-  unsigned int minus[4];
+  unsigned int plus[nr_ints];
+  unsigned int minus[nr_ints];
 };
 
 // prints a list if integers in the binary representation (smallest bit on the
@@ -111,7 +111,8 @@ char sort(unsigned char *a);
 char axB2(const OM &M, char sign, char s1, char s2, int in1, int in2);
 
 // checks Axiom B2' of BLSWZ, Lemma 3.5.4
-char b2prime(const OM &M, char sign, unsigned char *X, unsigned char *Y);
+char b2prime(const OM &M, char sign, std::array<unsigned char, R> X,
+             std::array<unsigned char, R> Y);
 
 // checks chirotope axioms, see "Oriented matroids" BLSWZ, Definition 3.5.3
 char ischirotope(const OM &M);

@@ -878,32 +878,26 @@ char axB2(const OM &M, char sign, char s1, char s2, int in1, int in2)
 }
 
 // checks Axiom B2'
-char b2prime(const OM &M, char sign, unsigned char *X, unsigned char *Y) {
-  int i, j;
+char b2prime(const OM &M, char sign, std::array<unsigned char, R> X,
+             std::array<unsigned char, R> Y) {
+  auto x = X;
+  auto y = Y;
 
-  unsigned char x[R];
-  unsigned char y[R];
-
-  for (i = 0; i < R; i++) {
-    x[i] = X[i];
-    y[i] = Y[i];
-  }
-
-  for (j = 0; j < R; j++) {
-    for (i = 0; i < R; i++) {
+  for (size_t j = 0; j < R; j++) {
+    for (size_t i = 0; i < R; i++) {
       x[i] = X[i];
       y[i] = Y[i];
     }
     x[0] = Y[j];
     y[j] = X[0];
 
-    auto s1 = sort(x); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
-    auto s2 = sort(y);
+    auto s1 = sort(x.data()); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
+    auto s2 = sort(y.data());
 
     // s1==0 means that two of y1,x2,x3 are the same, its chirotope
     // value is 0 and we want \chi(y1,x2,x3)*\chi(x1,y2,y3)<0
     if (s1 != 0 && s2 != 0) {
-      if (axB2(M, sign, s1, s2, ind(x), ind(y))) {
+      if (axB2(M, sign, s1, s2, ind(x.data()), ind(y.data()))) {
         return 1;
       }
     }
@@ -933,8 +927,8 @@ char ischirotope(const OM &M) {
     return 0;
 
   //(B2') Lemma 3.5.4
-  auto x = std::make_unique<unsigned char[]>(R);
-  auto y = std::make_unique<unsigned char[]>(R);
+  std::array<unsigned char, R> x;
+  std::array<unsigned char, R> y;
 
   char sign;
   int pi, pj, mi, mj;
@@ -971,9 +965,10 @@ char ischirotope(const OM &M) {
                    (mi && mj)) //\chi(x_1,x_2,x_3)* \chi(y_1,y_2,y_3)=1
             sign = 1;
 
-          for (size_t p = 0; p < R; p++) // we have to check B2' for all permutations
-                                  // of x1,x2,x3, but it suffices to have all
-                                  // entries of x in the first position
+          for (size_t p = 0; p < R;
+               p++) // we have to check B2' for all permutations
+                    // of x1,x2,x3, but it suffices to have all
+                    // entries of x in the first position
           {
             for (size_t q = 0; q < R; q++) {
               x[q] = bases[i + (k << 5), q];
@@ -985,10 +980,8 @@ char ischirotope(const OM &M) {
             if (p == 1)
               sign = -sign;
 
-            if (b2prime(M, sign, x.get(), y.get()) == 0) // checks B2'
-            {
+            if (b2prime(M, sign, x, y) == 0) // checks B2'
               return 0;
-            }
           }
         }
       }
