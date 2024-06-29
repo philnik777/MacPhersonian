@@ -106,7 +106,7 @@ int isequal(const OM &M1, const OM &M2);
 int ind(std::array<unsigned char, R> a);
 
 // sorts integers in the array and returns the sign of the permutation
-char sort(unsigned char *a);
+std::pair<std::array<unsigned char, R>, char> sort(std::array<unsigned char, R>);
 
 // used in b2prime to check Axiom B2' in ischirotope
 char axB2(const OM &M, char sign, char s1, char s2, int in1, int in2);

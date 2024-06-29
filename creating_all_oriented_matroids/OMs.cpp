@@ -538,7 +538,7 @@ int ind(std::array<unsigned char, R> a) {
 }
 
 // sorts integers in the array and returns the sign of the permutation
-char sort(unsigned char a[]) {
+std::pair<std::array<unsigned char, R>, char> sort(std::array<unsigned char, R> a) {
   unsigned char p;
   if (R == 3) { // quick code for three integers
     if (a[1] < a[0]) {
@@ -546,44 +546,44 @@ char sort(unsigned char a[]) {
         p = a[2];
         a[2] = a[0];
         a[0] = p;
-        return -1;
+        return {a, -1};
       } else if (a[2] == a[1]) {
-        return 0;
+        return {a, 0};
       } else if (a[0] < a[2]) {
         p = a[1];
         a[1] = a[0];
         a[0] = p;
-        return -1;
+        return {a, -1};
       } else if (a[0] == a[2])
-        return 0;
+        return {a, 0};
       else {
         p = a[0];
         a[0] = a[1];
         a[1] = a[2];
         a[2] = p;
-        return 1;
+        return {a, 1};
       }
     } else if (a[1] == a[0]) {
-      return 0;
+      return {a, 0};
     } else if (a[2] < a[1]) {
       if (a[0] < a[2]) {
         p = a[1];
         a[1] = a[2];
         a[2] = p;
-        return -1;
+        return {a, -1};
       } else if (a[0] == a[2]) {
-        return 0;
+        return {a, 0};
       } else {
         p = a[0];
         a[0] = a[2];
         a[2] = a[1];
         a[1] = p;
-        return 1;
+        return {a, 1};
       }
     } else if (a[2] == a[1]) {
-      return 0;
+      return {a, 0};
     } else {
-      return 1;
+      return {a, 1};
     }
   }
 
@@ -597,69 +597,69 @@ char sort(unsigned char a[]) {
           p = a[1];
           a[1] = a[2];
           a[2] = p;
-          return 1;
+          return {a, 1};
         } else if (a[3] == a[2])
-          return 0;
+          return {a, 0};
         else if (a[3] < a[1]) {
           p = a[0];
           a[0] = a[2];
           a[2] = a[1];
           a[1] = a[3];
           a[3] = p;
-          return -1;
+          return {a, -1};
         } else if (a[1] == a[3])
-          return 0;
+          return {a, 0};
         else if (a[3] < a[0]) {
           p = a[0];
           a[0] = a[2];
           a[2] = a[3];
           a[3] = p;
-          return 1;
+          return {a, 1};
         } else if (a[3] == a[0])
-          return 0;
+          return {a, 0};
         else {
           p = a[0];
           a[0] = a[2];
           a[2] = p;
-          return -1;
+          return {a, -1};
         }
       else if (a[2] == a[1])
-        return 0;
+        return {a, 0};
       else if (a[3] < a[1])
         if (a[2] < a[0]) {
           p = a[0];
           a[0] = a[3];
           a[3] = p;
-          return -1;
+          return {a, -1};
         } else if (a[2] == a[0])
-          return 0;
+          return {a, 0};
         else {
           p = a[0];
           a[0] = a[3];
           a[3] = a[2];
           a[2] = p;
-          return 1;
+          return {a, 1};
         }
       else if (a[3] == a[1])
-        return 0;
+        return {a, 0};
       else if (a[3] < a[2])
         if (a[2] < a[0]) {
           p = a[0];
           a[0] = a[1];
           a[1] = a[3];
           a[3] = p;
-          return 1;
+          return {a, 1};
         } else if (a[2] == a[0])
-          return 0;
+          return {a, 0};
         else if (a[3] < a[0]) {
           p = a[0];
           a[0] = a[1];
           a[1] = a[3];
           a[3] = a[2];
           a[2] = p;
-          return -1;
+          return {a, -1};
         } else if (a[3] == a[0])
-          return 0;
+          return {a, 0};
         else {
           p = a[0];
           a[0] = a[1];
@@ -667,36 +667,36 @@ char sort(unsigned char a[]) {
           p = a[2];
           a[2] = a[3];
           a[3] = p;
-          return 1;
+          return {a, 1};
         }
 
       else if (a[3] == a[2])
-        return 0;
+        return {a, 0};
       else if (a[0] < a[2]) {
         p = a[0];
         a[0] = a[1];
         a[1] = p;
-        return -1;
+        return {a, -1};
       } else if (a[2] == a[0])
-        return 0;
+        return {a, 0};
       else if (a[0] < a[3]) {
         p = a[0];
         a[0] = a[1];
         a[1] = a[2];
         a[2] = p;
-        return 1;
+        return {a, 1};
       } else if (a[0] == a[3])
-        return 0;
+        return {a, 0};
       else {
         p = a[0];
         a[0] = a[1];
         a[1] = a[2];
         a[2] = a[3];
         a[3] = p;
-        return -1;
+        return {a, -1};
       }
     else if (a[1] == a[0])
-      return 0;
+      return {a, 0};
     else if (a[3] < a[1])
       if (a[0] < a[3])
         if (a[2] < a[0]) {
@@ -705,33 +705,33 @@ char sort(unsigned char a[]) {
           a[2] = a[3];
           a[3] = a[1];
           a[1] = p;
-          return -1;
+          return {a, -1};
         } else if (a[2] == a[0])
-          return 0;
+          return {a, 0};
         else if (a[2] < a[3]) {
           p = a[1];
           a[1] = a[2];
           a[2] = a[3];
           a[3] = p;
-          return 1;
+          return {a, 1};
         } else if (a[2] == a[3])
-          return 0;
+          return {a, 0};
         else if (a[2] < a[1]) {
           p = a[1];
           a[1] = a[3];
           a[3] = p;
-          return -1;
+          return {a, -1};
         } else if (a[2] == a[1])
-          return 0;
+          return {a, 0};
         else {
           p = a[1];
           a[1] = a[3];
           a[3] = a[2];
           a[2] = p;
-          return 1;
+          return {a, 1};
         }
       else if (a[0] == a[3])
-        return 0;
+        return {a, 0};
       else if (a[2] < a[3]) {
         p = a[0];
         a[0] = a[2];
@@ -739,60 +739,60 @@ char sort(unsigned char a[]) {
         p = a[1];
         a[1] = a[3];
         a[3] = p;
-        return 1;
+        return {a, 1};
       } else if (a[2] == a[3])
-        return 0;
+        return {a, 0};
       else if (a[2] < a[0]) {
         p = a[0];
         a[0] = a[3];
         a[3] = a[1];
         a[1] = a[2];
         a[2] = p;
-        return -1;
+        return {a, -1};
       } else if (a[2] == a[0])
-        return 0;
+        return {a, 0};
       else if (a[2] < a[1]) {
         p = a[0];
         a[0] = a[3];
         a[3] = a[1];
         a[1] = p;
-        return 1;
+        return {a, 1};
       } else if (a[2] == a[1])
-        return 0;
+        return {a, 0};
       else {
         p = a[0];
         a[0] = a[3];
         a[3] = a[2];
         a[2] = a[1];
         a[1] = p;
-        return -1;
+        return {a, -1};
       }
     else if (a[3] == a[1])
-      return 0;
+      return {a, 0};
     else if (a[2] < a[0]) {
       p = a[0];
       a[0] = a[2];
       a[2] = a[1];
       a[1] = p;
-      return 1;
+      return {a, 1};
     } else if (a[2] == a[0])
-      return 0;
+      return {a, 0};
     else if (a[2] < a[1]) {
       p = a[1];
       a[1] = a[2];
       a[2] = p;
-      return -1;
+      return {a, -1};
     } else if (a[2] == a[1])
-      return 0;
+      return {a, 0};
     else if (a[2] < a[3])
-      return 1;
+      return {a, 1};
     else if (a[2] == a[3])
-      return 0;
+      return {a, 0};
     else {
       p = a[2];
       a[2] = a[3];
       a[3] = p;
-      return -1;
+      return {a, -1};
     }
   }
 
@@ -816,9 +816,9 @@ char sort(unsigned char a[]) {
     sorted++;
   }
 
-  if (std::adjacent_find(a, a + R) != a + R)
-    return 0;
-  return sign;
+  if (std::adjacent_find(a.begin(), a.end()) != a.end())
+    return {a, 0};
+  return {a, sign};
 }
 
 char axB2(const OM &M, char sign, char s1, char s2, int in1, int in2)
@@ -891,8 +891,10 @@ char b2prime(const OM &M, char sign, std::array<unsigned char, R> X,
     x[0] = Y[j];
     y[j] = X[0];
 
-    auto s1 = sort(x.data()); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
-    auto s2 = sort(y.data());
+    auto [x_sorted, s1] = sort(x); // checks \chi(y1,x2,x3)*\chi(x1,y2,y3)
+    x = x_sorted;
+    auto [y_sorted, s2] = sort(y);
+    y = y_sorted;
 
     // s1==0 means that two of y1,x2,x3 are the same, its chirotope
     // value is 0 and we want \chi(y1,x2,x3)*\chi(x1,y2,y3)<0
@@ -1060,7 +1062,9 @@ struct OM permute(const OM &M, unsigned char s[]) {
   for (i = 0; i < B; i++) {
     for (j = 0; j < R; j++)
       x[j] = s[bases[i, j]];
-    sign[i] = sort(x.data());
+    auto [x_sorted, perm_sign] = sort(x);
+    x = x_sorted;
+    sign[i] = perm_sign;
     b[i] = ind(x);
   }
 
